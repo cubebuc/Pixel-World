@@ -1,5 +1,6 @@
 console.log('Server-side code running')
 
+const PORT = process.env.PORT || 3000;
 const express = require('express');
 
 //Pixels
@@ -10,7 +11,7 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.json());
 
-app.listen(3000, () =>
+app.listen(PORT, () =>
 {
     console.log("Listening on port localhost:3000");
 });
