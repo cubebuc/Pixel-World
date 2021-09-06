@@ -1,12 +1,20 @@
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
+const LOOP_INTERVAL = 1000;
 let pixels = [];
 
 window.addEventListener('resize', resizeCanvas);
 document.addEventListener('click', onClick);
 
 onLoad();
+setInterval(loop, LOOP_INTERVAL);
+
+async function loop()
+{ 
+    await getPixels();
+    drawAllPixels();
+}
 
 async function onLoad()
 {
