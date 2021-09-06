@@ -2,6 +2,7 @@ const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
 const LOOP_INTERVAL = 100;
+const PIXEL_SIZE = 10;
 let pixels = [];
 
 window.addEventListener('resize', resizeCanvas);
@@ -34,10 +35,8 @@ function resizeCanvas()
 
 function drawPixel(pixel)
 {
-    const PIXEL_SIZE = 10;
-    x = pixel[0] - pixel[0] % PIXEL_SIZE;
-    y = pixel[1] - pixel[1] % PIXEL_SIZE;
-    
+    x = pixel[0] * PIXEL_SIZE;
+    y = pixel[1] * PIXEL_SIZE;
     context.fillStyle = pixel[2];
     context.fillRect(x, y, PIXEL_SIZE, PIXEL_SIZE);
 }
@@ -52,8 +51,8 @@ function drawAllPixels()
 
 function onClick(e)
 {
-    let x = e.clientX;
-    let y = e.clientY;
+    let x = (e.clientX - e.clientX % PIXEL_SIZE) / PIXEL_SIZE;
+    let y = (e.clientY - e.clientY % PIXEL_SIZE) / PIXEL_SIZE;
     let color = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
     let pixel = [x, y, color];
     drawPixel(pixel);
