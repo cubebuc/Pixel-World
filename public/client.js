@@ -2,8 +2,8 @@ const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
 const LOOP_INTERVAL = 100;
-const MIN_PIXEL_SIZE = 5;
-const MAX_PIXEL_SIZE = 100;
+const PIXEL_SIZES = [1, 2, 5, 10, 20, 40, 70, 100, 150, 200];
+let pixelSizeIndex = 3;
 let pixelSize = 10;
 let offsetX = 0;
 let offsetY = 0;
@@ -42,15 +42,26 @@ function onClick(e)
 
 function onWheel(e)
 {
-    console.log(e.deltaY);
-    if(e.deltaY > 0 && pixelSize > MIN_PIXEL_SIZE)
+    let prevX = window.innerWidth / pixelSize;
+    let prevY = window.innerHeight / pixelSize;
+
+    if(e.deltaY > 0 && pixelSizeIndex > 0)
     {
-        pixelSize -= 5;
+        pixelSizeIndex--;
     }
-    else if(e.deltaY < 0 && pixelSize < MAX_PIXEL_SIZE)
+    else if(e.deltaY < 0 && pixelSizeIndex < PIXEL_SIZES.length - 1)
     {
-        pixelSize += 5;
+        pixelSizeIndex++;
     }
+    pixelSize = PIXEL_SIZES[pixelSizeIndex];
+
+    let nowX = window.innerWidth / pixelSize;
+    let nowY = window.innerHeight / pixelSize;
+    let indexX = prevX / nowX;
+    let indexY = prevY / nowY;
+    offsetX *= indexX;
+    offsetY *= indexY;
+
     context.clearRect(0, 0, canvas.width, canvas.height);
     drawAllPixels();
 }
@@ -59,19 +70,19 @@ function onKeyDown(e)
 {
     if(e.code == 'ArrowLeft')
     {
-        offsetX -= 10;
+        offsetX += 200;
     }
     if(e.code == 'ArrowRight')
     {
-        offsetX += 10;
+        offsetX -= 200;
     }
     if(e.code == 'ArrowUp')
     {
-        offsetY -= 10;
+        offsetY += 200;
     }
     if(e.code == 'ArrowDown')
     {
-        offsetY += 10;
+        offsetY -= 200;
     }
     context.clearRect(0, 0, canvas.width, canvas.height);
     drawAllPixels();
