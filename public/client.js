@@ -1,7 +1,7 @@
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
-const LOOP_INTERVAL = 1000;
+const LOOP_INTERVAL = 100;
 let pixels = [];
 
 window.addEventListener('resize', resizeCanvas);
