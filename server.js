@@ -11,7 +11,7 @@ let pixels = [];
 //Postgresql
 const pool = new Pool
 ({
-    connectionString: 'postgres://spfmmjliqvrzyq:8eda981e4ec3382a7b55ccbf81dc60b0cf041b2ba6f7253b31301fc10b856592@ec2-54-73-152-36.eu-west-1.compute.amazonaws.com:5432/dfo9psvno02irm',
+    connectionString: 'postgres://opslpfln:e1BlKIBHNJ-xZSdlV-GuaAk6PniDqfks@hansken.db.elephantsql.com/opslpfln',
     ssl: { rejectUnauthorized: false }
 });
 let query;
@@ -22,24 +22,39 @@ function initDb()   //Creates mandatory tables, if they do not exist
         x integer,
         y integer,
         color varchar(7));`;
-    pool.query(query);
+    pool.query(query)
+    .catch(e =>
+    {
+        //console.log(e);
+    });;
 }
 
 async function loadPixels()
 {
-    query = {text: `SELECT * FROM pixels;`, rowMode: 'array'};
-    let res = await pool.query(query);
-    for(let pixel of res.rows)
+    query = {text: `SELECT * FROM pixels;`};
+    pool.query(query)
+    .then(res => 
     {
-        pixels.push(pixel);
-    }
+        for(let pixel of res.rows)
+        {
+            pixels.push(pixel);
+        }
+    })
+    .catch(e =>
+    {
+        //console.log(e);
+    });
 }
 
 function savePixel(pixel)
 {
-    let values = `${pixel[0]}, ${pixel[1]}, '${pixel[2]}'`;
+    let values = `${pixel.x}, ${pixel.y}, '${pixel.color}'`;
     query = `INSERT INTO pixels(x, y, color) VALUES (${values});`;
-    pool.query(query);
+    pool.query(query)
+    .catch(e =>
+    {
+        //console.log(e);
+    });
 }
 
 initDb();
@@ -63,6 +78,7 @@ app.get('/', (req, res) =>
 app.post('/addpixel', (req, res) =>
 {
     let pixel = req.body.pixel;
+    console.log(pixel);
     pixels.push(pixel);
     savePixel(pixel);
     res.end();

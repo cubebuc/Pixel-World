@@ -2,17 +2,27 @@ const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
 const LOOP_INTERVAL = 100;
+
 const PIXEL_SIZES = [1, 2, 5, 10, 20, 40, 70, 100, 150, 200];
 let pixelSizeIndex = 3;
 let pixelSize = 10;
+
 let offsetX = 0;
 let offsetY = 0;
+
+let lmbDown = false;
+let rmbDown = false;
+
+let lastPixelPos;
+
 let pixels = [];
 
 window.addEventListener('resize', resizeCanvas);
-document.addEventListener('click', onClick);
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener('mousedown', onMouseDown);
+document.addEventListener('mouseup', onMouseUp);
+document.addEventListener('mousemove', onMouseMove);
 document.addEventListener('wheel', onWheel);
-document.addEventListener('keydown', onKeyDown);
 
 onLoad();
 setInterval(loop, LOOP_INTERVAL);
@@ -27,17 +37,55 @@ async function onLoad()
 async function loop()
 { 
     await getPixels();
-    drawAllPixels();
+    redrawCanvas()
 }
 
-function onClick(e)
+function onMouseDown(e)
 {
-    let x = (e.clientX - e.clientX % pixelSize - offsetX) / pixelSize;
-    let y = (e.clientY - e.clientY % pixelSize - offsetY) / pixelSize;
-    let color = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
-    let pixel = [x, y, color];
-    drawPixel(pixel);
-    sendPixel(pixel);
+    if(e.button == 0)   //Left mouse button
+    {
+        lmbDown = true;
+        let pos = getPixelPos(e.clientX, e.clientY);
+        let color = getRandomColor();
+        let pixel = {x: pos.x, y: pos.y, color: color};
+        lastPixelPos = pos;
+        drawPixel(pixel);
+        sendPixel(pixel);
+    }
+    else if(e.button == 2)  //Right mouse button
+    {
+        rmbDown = true;
+    }
+}
+
+function onMouseUp(e)
+{
+    if(e.button == 0)  //Left mouse button
+    {
+        lmbDown = false;
+    }
+    else if(e.button == 2)  //Right mouse button
+    {
+        rmbDown = false;
+    }
+}
+
+function onMouseMove(e)
+{
+    if(lmbDown)
+    {
+        let pos = getPixelPos(e.clientX, e.clientY);
+        if(JSON.stringify(pos) !== JSON.stringify(lastPixelPos))
+        {
+            onMouseDown(e);
+        }
+    }
+    if(rmbDown)
+    {
+        offsetX += e.movementX;
+        offsetY += e.movementY;
+        redrawCanvas()
+    }
 }
 
 function onWheel(e)
@@ -62,28 +110,11 @@ function onWheel(e)
     offsetX *= indexX;
     offsetY *= indexY;
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    drawAllPixels();
+    redrawCanvas()
 }
 
-function onKeyDown(e)
+function redrawCanvas()
 {
-    if(e.code == 'ArrowLeft')
-    {
-        offsetX += 200;
-    }
-    if(e.code == 'ArrowRight')
-    {
-        offsetX -= 200;
-    }
-    if(e.code == 'ArrowUp')
-    {
-        offsetY += 200;
-    }
-    if(e.code == 'ArrowDown')
-    {
-        offsetY -= 200;
-    }
     context.clearRect(0, 0, canvas.width, canvas.height);
     drawAllPixels();
 }
@@ -97,11 +128,23 @@ function resizeCanvas()
     drawAllPixels();
 }
 
+function getRandomColor()
+{
+    return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+}
+
+function getPixelPos(realX, realY)
+{
+    let x = (realX - realX % pixelSize - offsetX + offsetX % pixelSize) / pixelSize;
+    let y = (realY - realY % pixelSize - offsetY + offsetY % pixelSize) / pixelSize;
+    return {x: x, y: y};
+}
+
 function drawPixel(pixel)
 {
-    x = pixel[0] * pixelSize + offsetX;
-    y = pixel[1] * pixelSize + offsetY;
-    context.fillStyle = pixel[2];
+    x = pixel.x * pixelSize + offsetX - offsetX % pixelSize;
+    y = pixel.y * pixelSize + offsetY - offsetY % pixelSize;
+    context.fillStyle = pixel.color;
     context.fillRect(x, y, pixelSize, pixelSize);
 }
 
