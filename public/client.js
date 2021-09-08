@@ -19,10 +19,15 @@ let pixels = [];
 
 window.addEventListener('resize', resizeCanvas);
 document.addEventListener("contextmenu", e => e.preventDefault());
+
 document.addEventListener('mousedown', onMouseDown);
 document.addEventListener('mouseup', onMouseUp);
 document.addEventListener('mousemove', onMouseMove);
 document.addEventListener('wheel', onWheel);
+
+document.addEventListener('touchstart', onTouchStart);
+document.addEventListener('touchend', onTouchEnd);
+document.addEventListener('touchmove', onTouchMove);
 
 onLoad();
 setInterval(loop, LOOP_INTERVAL);
@@ -111,6 +116,21 @@ function onWheel(e)
     offsetY *= indexY;
 
     redrawCanvas()
+}
+
+function onTouchStart(e)
+{
+
+}
+
+function onTouchEnd(e)
+{
+    
+}
+
+function onTouchMove(e)
+{
+    
 }
 
 function redrawCanvas()
