@@ -27,9 +27,9 @@ document.addEventListener('mouseup', onMouseUp);
 document.addEventListener('mousemove', onMouseMove);
 document.addEventListener('wheel', onWheel);
 
-document.addEventListener('touchstart', onTouchStart);
-document.addEventListener('touchend', onTouchEnd);
-document.addEventListener('touchmove', onTouchMove);
+document.addEventListener('touchstart', onTouchStart, {passive: false});
+document.addEventListener('touchend', onTouchEnd, {passive: false});
+document.addEventListener('touchmove', onTouchMove, {passive: false});
 
 onLoad();
 setInterval(loop, LOOP_INTERVAL);
@@ -155,11 +155,22 @@ function onTouchMove(e)
 
     if(ongoingTouches.length == 1)
     {
-        let touch = ongoingTouches[0];
+        let touch;
+        for(let t of touches)
+        {
+            if(t.identifier == ongoingTouches[0].id)
+            {
+                touch = t;
+            }
+        }
+
         let pos = getPixelPos(touch.clientX, touch.clientY);
-        let color = getRandomColor();
-        let pixel = {x: pos.x, y: pos.y, color: color};
-        addPixel(pixel);
+        if(JSON.stringify(pos) !== JSON.stringify(lastPixelPos))
+        {
+            let color = getRandomColor();
+            let pixel = {x: pos.x, y: pos.y, color: color};
+            addPixel(pixel);
+        }
     }
     else if(ongoingTouches.length == 2)
     {
