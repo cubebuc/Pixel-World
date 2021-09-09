@@ -178,15 +178,15 @@ function onTouchMove(e)
     }
     else if(ongoingTouches.length == 3)
     {
-        /*for(let touch of touches)
+        for(let touch of touches)
         {
             let t = ongoingTouches.find(t => t.id == touch.identifier);
-            let deltaX = t.clientX;
-            let deltaY = t.clientY; 
+            let deltaX = t.x - t.clientX;
+            let deltaY = t.y - t.clientY; 
             offsetX += deltaX;
             offsetY += deltaY;
         }
-        redrawCanvas()*/
+        redrawCanvas()
     }
 }
 
