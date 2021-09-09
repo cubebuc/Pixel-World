@@ -75,7 +75,7 @@ app.get('/', (req, res) =>
     res.sendFile('index.html');
 });
 
-app.post('/addpixel', (req, res) =>
+app.post('/sendpixel', (req, res) =>
 {
     let pixel = req.body.pixel;
     console.log(pixel);
