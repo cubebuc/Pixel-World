@@ -1,12 +1,25 @@
 console.log('Server-side code running')
 
 const express = require('express');
-const { Pool, Client } = require('pg');
+const { Pool } = require('pg');
 
 const PORT = process.env.PORT || 3000;
+const LOOP_INTERVAL = 500;
 
 //Pixels
 let pixels = [];
+let newPixels = [];
+
+//Loop
+function loop()
+{
+    if(newPixels.length > 0)
+    {
+        saveNewPixels();
+    }
+}
+
+setInterval(loop, LOOP_INTERVAL);
 
 //Postgresql
 const pool = new Pool
@@ -25,7 +38,7 @@ function initDb()   //Creates mandatory tables, if they do not exist
     pool.query(query)
     .catch(e =>
     {
-        //console.log(e);
+        console.log(e);
     });;
 }
 
@@ -42,19 +55,24 @@ async function loadPixels()
     })
     .catch(e =>
     {
-        //console.log(e);
+        console.log(e);
     });
 }
 
-function savePixel(pixel)
+function saveNewPixels()
 {
-    let values = `${pixel.x}, ${pixel.y}, '${pixel.color}'`;
-    query = `INSERT INTO pixels(x, y, color) VALUES (${values});`;
+    let values = `INSERT INTO pixels(x, y, color) VALUES `;
+    for(let pixel of newPixels)
+    {
+        values += `(${pixel.x}, ${pixel.y}, '${pixel.color}'), `;
+    }
+    values += `;`
     pool.query(query)
     .catch(e =>
     {
-        //console.log(e);
+        console.log(e);
     });
+    newPixels = [];
 }
 
 initDb();
@@ -78,9 +96,8 @@ app.get('/', (req, res) =>
 app.post('/addpixel', (req, res) =>
 {
     let pixel = req.body.pixel;
-    console.log(pixel);
+    newPixels.push(pixel);
     pixels.push(pixel);
-    savePixel(pixel);
     res.end();
 });
 
