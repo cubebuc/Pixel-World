@@ -3,9 +3,7 @@ const context = canvas.getContext('2d');
 
 const LOOP_INTERVAL = 100;
 
-let ongoingTouches = [];
-
-const PIXEL_SIZES = [1, 2, 5, 10, 20, 40, 70, 100, 150, 200];
+const PIXEL_SIZES = [1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200];
 let pixelSizeIndex = 3;
 let pixelSize = 10;
 
@@ -55,7 +53,9 @@ function onMouseDown(e)
         let pos = getPixelPos(e.clientX, e.clientY);
         let color = getRandomColor();
         let pixel = {x: pos.x, y: pos.y, color: color};
-        addPixel(pixel);
+        lastPixelPos = pos;
+        drawPixel(pixel);
+        sendPixel(pixel);
     }
     else if(e.button == 2)  //Right mouse button
     {
@@ -120,63 +120,17 @@ function onWheel(e)
 
 function onTouchStart(e)
 {
-    e.preventDefault();
-    let touches = e.changedTouches;
-    for(let touch of touches)
-    {
-        ongoingTouches.push({id: touch.identifier, x: touch.clientX, y: touch.clientY});
-    }
 
-    if(ongoingTouches.length == 1)
-    {
-        let touch = ongoingTouches[0];
-        let pos = getPixelPos(touch.x, touch.y);
-        let color = getRandomColor();
-        let pixel = {x: pos.x, y: pos.y, color: color};
-        addPixel(pixel);
-    }
 }
 
 function onTouchEnd(e)
 {
-    e.preventDefault();
-    let touches = e.changedTouches;
-    for(let touch of touches)
-    {
-        let index = ongoingTouches.findIndex(t => t.id == touch.identifier);
-        ongoingTouches.splice(index, 1);
-    }
+    
 }
 
 function onTouchMove(e)
 {
-    e.preventDefault();
-    let touches = e.changedTouches;
-
-    if(ongoingTouches.length == 1)
-    {
-        let touch = ongoingTouches[0];
-        let pos = getPixelPos(touch.clientX, touch.clientY);
-        let color = getRandomColor();
-        let pixel = {x: pos.x, y: pos.y, color: color};
-        addPixel(pixel);
-    }
-    else if(ongoingTouches.length == 2)
-    {
-
-    }
-    else if(ongoingTouches.length == 3)
-    {
-        /*for(let touch of touches)
-        {
-            let t = ongoingTouches.find(t => t.id == touch.identifier);
-            let deltaX = t.clientX;
-            let deltaY = t.clientY; 
-            offsetX += deltaX;
-            offsetY += deltaY;
-        }
-        redrawCanvas()*/
-    }
+    
 }
 
 function redrawCanvas()
@@ -192,13 +146,6 @@ function resizeCanvas()
     canvas.width = width;
     canvas.height = height;
     drawAllPixels();
-}
-
-function addPixel(pixel)
-{
-    lastPixelPos = {x: pixel.x, y: pixel.y};
-    drawPixel(pixel);
-    sendPixel(pixel);
 }
 
 function getRandomColor()
@@ -231,7 +178,7 @@ function drawAllPixels()
 
 function sendPixel(pixel)
 {
-    fetch('/sendpixel', 
+    fetch('/addpixel', 
     {
         method: 'POST',
         headers: 
