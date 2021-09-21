@@ -4,7 +4,7 @@ const express = require('express');
 const { Pool } = require('pg');
 
 const PORT = process.env.PORT || 3000;
-const LOOP_INTERVAL = 500;
+const LOOP_INTERVAL = 1000;
 
 //Pixels
 let pixels = [];
@@ -61,12 +61,13 @@ async function loadPixels()
 
 function saveNewPixels()
 {
-    let values = `INSERT INTO pixels(x, y, color) VALUES `;
+    query = `INSERT INTO pixels(x, y, color) VALUES `;
     for(let pixel of newPixels)
     {
-        values += `(${pixel.x}, ${pixel.y}, '${pixel.color}'), `;
+        query += `(${pixel.x}, ${pixel.y}, '${pixel.color}'),`;
     }
-    values += `;`
+    query = query.substring(0, query.length - 1) + `;`;
+    console.log(query);
     pool.query(query)
     .catch(e =>
     {

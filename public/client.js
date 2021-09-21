@@ -44,7 +44,7 @@ async function onLoad()
 async function loop()
 { 
     await getPixels();
-    redrawCanvas()
+    redrawCanvas();
 }
 
 function onMouseDown(e)
@@ -183,8 +183,8 @@ function onTouchMove(e)
             let t = ongoingTouches.find(t => t.id == touch.identifier);
             let deltaX = t.x - t.clientX;
             let deltaY = t.y - t.clientY; 
-            offsetX += deltaX;
-            offsetY += deltaY;
+            offsetX += deltaX / 10;
+            offsetY += deltaY / 10;
         }
         redrawCanvas()
     }
@@ -207,9 +207,10 @@ function resizeCanvas()
 
 function addPixel(pixel)
 {
-    lastPixelPos = {x: pixel.x, y: pixel.y};
+    pixels.push(pixel);
     drawPixel(pixel);
     sendPixel(pixel);
+    lastPixelPos = {x: pixel.x, y: pixel.y};
 }
 
 function getRandomColor()
