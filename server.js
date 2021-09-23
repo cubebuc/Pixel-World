@@ -2,9 +2,28 @@ console.log('Server-side code running')
 
 const express = require('express');
 const { Pool } = require('pg');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const PORT = process.env.PORT || 3000;
 const LOOP_INTERVAL = 1000;
+
+const app = express();
+app.use(express.static('public'));
+app.use(express.json());
+
+const server = http.createServer(app);
+const io = new Server(server);
+
+io.on('connection', () =>
+{
+    console.log('User connected');
+});
+
+server.listen(PORT, () =>
+{
+    console.log('Listening on port localhost:3000');
+});
 
 //Pixels
 let pixels = [];
@@ -13,6 +32,7 @@ let newPixels = [];
 //Loop
 function loop()
 {
+    console.log(pixels.length);
     if(newPixels.length > 0)
     {
         saveNewPixels();
@@ -67,7 +87,7 @@ function saveNewPixels()
         query += `(${pixel.x}, ${pixel.y}, '${pixel.color}'),`;
     }
     query = query.substring(0, query.length - 1) + `;`;
-    console.log(query);
+    //console.log(query);
     pool.query(query)
     .catch(e =>
     {
@@ -80,15 +100,6 @@ initDb();
 loadPixels();
 
 //Express
-const app = express();
-app.use(express.static('public'));
-app.use(express.json());
-
-app.listen(PORT, () =>
-{
-    console.log("Listening on port localhost:3000");
-});
-
 app.get('/', (req, res) =>
 {
     res.sendFile('index.html');
@@ -99,6 +110,7 @@ app.post('/addpixel', (req, res) =>
     let pixel = req.body.pixel;
     newPixels.push(pixel);
     pixels.push(pixel);
+    io.emit('pixel', pixel);
     res.end();
 });
 

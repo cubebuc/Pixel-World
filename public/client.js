@@ -1,3 +1,5 @@
+const socket = io();
+
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
@@ -32,7 +34,6 @@ document.addEventListener('touchend', onTouchEnd, {passive: false});
 document.addEventListener('touchmove', onTouchMove, {passive: false});
 
 onLoad();
-setInterval(loop, LOOP_INTERVAL);
 
 async function onLoad()
 {
@@ -41,11 +42,12 @@ async function onLoad()
     drawAllPixels();
 }
 
-async function loop()
-{ 
-    await getPixels();
-    redrawCanvas();
-}
+socket.on('pixel', (pixel) =>
+{
+    console.log(pixel);
+    pixels.push(pixel);
+    drawPixel(pixel);
+});
 
 function onMouseDown(e)
 {
@@ -207,7 +209,6 @@ function resizeCanvas()
 
 function addPixel(pixel)
 {
-    pixels.push(pixel);
     drawPixel(pixel);
     sendPixel(pixel);
     lastPixelPos = {x: pixel.x, y: pixel.y};
